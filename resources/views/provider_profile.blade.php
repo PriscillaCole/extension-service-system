@@ -65,7 +65,7 @@
             <h2>Personal Information</h2>
            
             <?php
-            $logo = $provider->logo ? asset('storage/' . $provider->logo) : asset('storage/images/default_image.png');
+            $logo = $provider->logo ? asset('storage/' . $provider->logo) :  asset('storage/assets/logo.png');
             ?>
             <img src="{{ $logo }}" alt="logo">
     

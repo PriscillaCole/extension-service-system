@@ -33,13 +33,22 @@ class FarmController extends AdminController
             $f->between('created_at', 'Filter by date registered')->date();
         });
 
+          //order of table
+          $grid->model()->orderBy('id', 'desc');
+
         $grid->column('name', __('Name'));
         $grid->column('date_of_establishment', __('Date of establishment'));
         $grid->column('size', __('Size'));
         $grid->column('number_of_animals', __('Number of animals'));
-        $grid->column('owner_id', __('Owner id'));
-        $grid->column('added_by', __('Added by'));
-        $grid->column('created_at', __('Created at'));
+        $grid->column('owner_id', __('Owner'))->display(function ($owner_id) {
+            return \App\Models\Farmer::find($owner_id)->surname . ' ' . \App\Models\Farmer::find($owner_id)->given_name;
+        });
+        $grid->column('added_by', __('Added by'))->display(function ($added_by) {
+            return \App\Models\User::find($added_by)->name ?? 'N/A';
+        });
+        $grid->column('created_at', __('Created at'))->display(function ($created_at) {
+            return date('d-M-Y', strtotime($created_at));
+        });
     
 
         return $grid;

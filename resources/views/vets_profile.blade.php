@@ -66,7 +66,7 @@
             <h2>Basic Information</h2>
            
             <?php
-            $profilePicture = $vet->profile_picture ? asset('storage/' . $vet->profile_picture) : asset('storage/images/default_image.png');
+            $profilePicture = $vet->profile_picture ? asset('storage/' . $vet->profile_picture) :  asset('storage/assets/person.png');
             ?>
             <img class="image2" src="{{ $profilePicture }}" alt="profile">
     

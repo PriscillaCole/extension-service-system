@@ -66,7 +66,7 @@
            
             <?php
             error_log($farm->profile_picture);
-            $profilePicture = $farm->profile_picture ? asset('storage/' . $farm->profile_picture) : asset('storage/images/farm.jpeg');
+            $profilePicture = $farm->profile_picture ? asset('storage/' . $farm->profile_picture) : asset('storage/assets/farm.jpeg');
             ?>
             <img src="{{ $profilePicture }}" alt="profile">
     

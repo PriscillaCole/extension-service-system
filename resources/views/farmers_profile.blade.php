@@ -59,7 +59,7 @@
             <h2>Personal Information</h2>
            
             <?php
-            $profile_picture = $farmer->profile_picture ? asset('storage/' . $farmer->profile_picture) : asset('storage/images/default_image.png');
+            $profile_picture = $farmer->profile_picture ? asset('storage/' . $farmer->profile_picture) : asset('storage/assets/person.png');
             ?>
             <img class ="image2"src="{{ $profile_picture }}" alt="profile_picture">
     

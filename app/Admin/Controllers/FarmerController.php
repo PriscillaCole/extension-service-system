@@ -45,6 +45,13 @@ class FarmerController extends AdminController
 
         });
 
+        $grid->export(function ($export) {
+        
+            $export->originalValue(['status',]);
+            $export->except(['created_at', 'updated_at','profile_picture',]);
+           
+        });
+
          //show a user only their records if they are not an admin
          if (!Admin::user()->inRoles(['administrator','ldf_admin'])) {
             $grid->model()->where('user_id', Admin::user()->id);
@@ -57,14 +64,20 @@ class FarmerController extends AdminController
 
          //disable action buttons appropriately
          Utils::disable_buttons('Vet', $grid);
-
-         $grid->column('profile_picture', __('Profile picture'))->display(function ($profile_picture) {
-            if ($profile_picture) {
-                return $profile_picture;
-            } else {
-                return "/images/default_image.png";
+         $grid->column('profile_picture', __('Profile picture'))->display(function ($logo) {
+            // Set a default logo path
+            $defaultLogo = '/storage/assets/person.png';
+        
+            // Check if the logo exists and is readable
+            $logoPath = $logo ? "/storage/$logo" : $defaultLogo;
+            
+            // Use the default logo if the specific logo is not readable
+            if (!is_readable(public_path($logoPath))) {
+                $logoPath = $defaultLogo;
             }
-        })->image('', 50, 50);
+        
+            return "<img src='$logoPath' style='width:55px; height:50px; border-radius:50%;'>";
+        });
         
         $grid->column('surname', __('Surname'));
         $grid->column('given_name', __('Given name'));
@@ -88,7 +101,16 @@ class FarmerController extends AdminController
                     break;
             }
         });
-        $grid->column('status', __('Status'));
+        $grid->column('status', __('Status'))->display(function ($status) {
+            switch ($status) {
+                case 'active':
+                    return "<span class='label label-success'>Active</span>";
+                    break;
+                default:
+                    return 'Unknown';
+                    break;
+            }
+        });
        
 
         return $grid;
@@ -127,6 +149,11 @@ class FarmerController extends AdminController
             $tools->disableView();
            
         });
+        //after saving the form, redirect to the table view
+        $form->saved(function (Form $form) {
+            admin_toastr('Record saved successfully', 'success');
+            return redirect('/admin/farmers');
+        });
 
         $form->text('surname', __('Surname'))->rules('required');
         $form->text('given_name', __('Given name'))->rules('required');
@@ -160,7 +187,7 @@ class FarmerController extends AdminController
                 'Diploma' => 'Diploma',
             ]);
             
-        $form->image('profile_picture', __('Profile picture'));
+        $form->image('profile_picture', __('Profile picture'))->rules('mimes:jpeg,jpg,png', ['mimes' => 'Only jpeg, jpg and png files are allowed'],'size:1048');
         $form->hidden('added_by')->default(Admin::user()->id);
         $form->hidden('user_id');
       
