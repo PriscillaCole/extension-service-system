@@ -30,7 +30,7 @@ class FarmAnimalController extends AdminController
        
         $grid->column('farm_id', __('Farm'))->display(function ($farm_id) {
             $farm = \App\Models\Farm::find($farm_id)->name;
-            return "<a href='/farms/$farm_id'>$farm</a>";
+            return "<a href='/admin/farms/$farm_id'>$farm</a>";
         });
         $grid->column('type', __('Type'));
         $grid->column('tag_number', __('Tag number'));
@@ -93,7 +93,7 @@ class FarmAnimalController extends AdminController
         $form->text('type', __('Type'));
         $form->text('tag_number', __('Tag number'));
         $form->text('species', __('Species'));
-        $form->text('gender', __('Gender'));
+        $form->radio('gender', __('Gender'))->options(['male'=> 'Male','female'=>'Female']);
         $form->date('date_of_birth', __('Date of birth'))->default(date('Y-m-d'));
         $form->text('color', __('Color/Markings'))->help('Description of the animal\'s color and markings');
         $form->text('current_location', __('Current location'))->help('Where the animal is currently located');
