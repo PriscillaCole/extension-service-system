@@ -16,13 +16,11 @@ return new class extends Migration
             $table->string('name');
             $table->string('owner_name')->nullable();
             $table->text('owner_profile')->nullable();
-
             $table->string('provider_category')->nullable();
             $table->string('provider_type')->nullable();
             $table->string('ursb_incorporation_number')->nullable();
             $table->date('date_of_incorporation')->nullable();
             $table->string('type_of_shop')->nullable();
-            
             $table->date('date_of_registration')->nullable();
             $table->string('physical_address')->nullable();
             $table->string('primary_phone_number')->nullable();
@@ -38,7 +36,7 @@ return new class extends Migration
             $table->string('license')->nullable();
             $table->string('status')->default('pending');
             $table->json('other_documents')->nullable();
-            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('user_id')->nullable();
             $table->unsignedInteger('added_by')->nullable();
             $table->softDeletes();
             $table->timestamps();

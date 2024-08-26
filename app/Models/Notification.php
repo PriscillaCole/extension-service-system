@@ -28,7 +28,7 @@ class Notification extends Model
     //relationship between notification and user
     public function receiver()
     {
-        return $this->belongsTo(Administrator::class, 'receiver_id');
+        return $this->belongsTo(User::class, 'receiver_id');
     }
 
 
@@ -174,7 +174,7 @@ class Notification extends Model
 
     public static function get_users_by_id($receiver_id)
     {
-        $users= Administrator::with('notifications')
+        $users= User::with('notifications')
             ->where('id', $receiver_id)
             ->get();
 

@@ -9,6 +9,7 @@ use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use App\Models\Utils;
 use Encore\Admin\Facades\Admin;
+use App\Models\Location;
 use Carbon\Carbon;
 
 
@@ -34,24 +35,16 @@ class ServiceProviderController extends AdminController
         $grid->export(function ($export) {
         
             $export->originalValue(['status',]);
-            $export->except(['created_at','profile_picture',]);
+            $export->except(['created_at','logo',]);
            
         });
 
         $grid->filter(function($filter){
             $filter->disableIdFilter();
-            $filter->like('name', 'Name');
-            $filter->like('owner_name', 'Owner name');
-            $filter->like('class_of_service', 'Class of service');
+            $filter->like('name', 'Name')->select(ServiceProvider::pluck('name', 'name')->toArray());
+            $filter->like('provider_category', 'Category')->select(['services' => 'Services', 'products' => 'Products','drugs'=>'Drugs']);
             $filter->between('date_of_registration', 'Date of registration')->date();
-            $filter->like('physical_address', 'Physical address');
-            $filter->like('email', 'Email');
-            $filter->like('postal_address', 'Postal address');
-            $filter->like('other_services', 'Other services');
-            $filter->like('distroict_of_operation', 'District of operation');
-            $filter->like('tin_number_business', 'Tin number business');
-            $filter->like('tin_number_owner', 'Tin number owner');
-            $filter->between('created_at', 'Filter by date registered')->date();
+            $filter->like('district_of_operation', 'District of operation')->select(Location::pluck('name', 'id')->toArray());
         });
 
       //show a user only their records if they are not an admin
@@ -67,12 +60,36 @@ class ServiceProviderController extends AdminController
         //disable action buttons appropriately
         Utils::disable_buttons('ServiceProvider', $grid);
 
-        $grid->column('logo', __('Logo'))->image('', 50, 50);
+        $grid->column('logo', __('Logo'))->display(function ($logo) {
+            // Set a default logo path
+            $defaultLogo = '/storage/assets/logo.png';
+        
+            // Check if the logo exists and is readable
+            $logoPath = $logo ? "/storage/$logo" : $defaultLogo;
+            
+            // Use the default logo if the specific logo is not readable
+            if (!is_readable(public_path($logoPath))) {
+                $logoPath = $defaultLogo;
+            }
+        
+            return "<img src='$logoPath' style='width:55px; height:50px; border-radius:50%;'>";
+        });
+        
         $grid->column('name', __('Name'));
+        $grid->column('provider_category', __('Provider category'));
         $grid->column('provider_type', __('Provider type'));
-        $grid->column('physical_address', __('Physical address'));
+        $grid->column('district_of_operation', __('District of operation'));
         $grid->column('primary_phone_number', __('Primary phone number'));
         $grid->column('email', __('Email'));
+        $grid->column('status', __('Status'))->display(function ($status) {
+            if ($status == 'approved') {
+                return "<span class='label label-success'>Approved</span>";
+            } elseif ($status == 'rejected') {
+                return "<span class='label label-danger'>Rejected</span>";
+            } else {
+                return "<span class='label label-warning'>Pending</span>";
+            }
+        });
       
         return $grid;
     }
@@ -103,13 +120,19 @@ class ServiceProviderController extends AdminController
     {
         $form = new Form(new ServiceProvider());
         if($form->isCreating()){
-            $form->hidden('status')->default('Pending');
+            $form->hidden('status')->default('approved');
             $form->hidden('added_by')->default(Admin::user()->id);
         }
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();
             $tools->disableView();
            
+        });
+
+        //after saving the form, redirect to the table view
+        $form->saved(function (Form $form) {
+            admin_toastr('Record saved successfully', 'success');
+            return redirect('/admin/service-providers');
         });
 
         $form->radio('provider_category', __('Provider category'))->options
@@ -151,18 +174,22 @@ class ServiceProviderController extends AdminController
         $form->email('email', __('Email'));
         $form->text('postal_address', __('Postal address'));
         $form->text('other_services', __('Other services'));
-        $form->image('logo', __('Logo'));
-        $form->text('district_of_operation', __('District of operation'))->help('District of operation - sub county')->rules('required');
+        $form->image('logo', __('Logo'))->rules('mimes:jpeg,bmp,png,jpg,webp', ['mimes' => 'Only jpeg,bmp,png,jpg,webp files are allowed'],'size:1048');
+        $form->select('district_of_operation', __('District of operation'))
+            ->options(Location::pluck('name', 'name')->toArray())
+            ->rules('required');
         $form->text('tin_number_business', __('Tin number business'))->rules('required');
         $form->text('tin_number_owner', __('Tin number owner'));
-        $form->file('NDA_registration_number', __('NDA registration'))->required();
-        $form->file('license', __('License'))->required();
-        $form->multipleFile('other_documents', __('Other documents'));
+        $form->file('NDA_registration_number', __('NDA registration'))->rules('mimes:pdf', ['mimes' => 'Only pdf files are allowed'],'size:1048')->required();
+        $form->file('license', __('License'))->rules('mimes:pdf', ['mimes' => 'Only pdf files are allowed'],'size:1048')->required();
         $form->hidden('user_id');
 
         //check if the user is an admin and show the status field
-        if (Admin::user()->inRoles(['administrator','ldf_admin'])) {
-        $form->radioCard('status', __('Status'))->options(['halted' => 'Halted', 'approved' => 'Approved', 'rejected' => 'Rejected'])->rules('required');
+        if($form->isEditing())
+        {
+            if (Admin::user()->inRoles(['administrator','ldf_admin'])) {
+            $form->radioCard('status', __('Status'))->options(['halted' => 'Halted', 'approved' => 'Approved', 'rejected' => 'Rejected'])->rules('required');
+            }
         }
 
         return $form;

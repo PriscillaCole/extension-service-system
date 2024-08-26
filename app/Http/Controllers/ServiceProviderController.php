@@ -75,7 +75,11 @@ class ServiceProviderController extends Controller
 
         // Save the validated data to the database
         $serviceProvider = ServiceProvider::create($validatedData);
-        return response()->json($serviceProvider, 201);
+        return response()->json([
+            'message' => 'Service provider created successfully.',
+            'data' => $serviceProvider
+        ], 201);
+        
     }
 
     public function update(Request $request, $id)

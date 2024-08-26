@@ -20,7 +20,6 @@ class ServiceProvider extends Model
         'ursb_incorporation_number',
         'date_of_incorporation',
         'type_of_shop',
-        
         'date_of_registration',
         'physical_address',
         'primary_phone_number',

@@ -63,13 +63,14 @@ class Utils extends Model
                 $grid->actions(function ($actions) {
                     
                 if ($actions->row->status == 'approved') {
-                    $actions->disableDelete();
-                    $actions->disableEdit();
-                }
-                // }else{
+                    //check if the logged in user id is the same as the user_id in the row added_by
+                    if($actions->row->added_by != auth('admin')->user()->id)
+                    {
+                        $actions->disableDelete();
+                    }
                     
-                //     $actions->disableDelete();
-                // }
+                }
+               
                 });
         }
 
