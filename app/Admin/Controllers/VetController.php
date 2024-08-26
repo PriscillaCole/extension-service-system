@@ -32,8 +32,8 @@ class VetController extends AdminController
 
         $grid->filter(function ($f) {
             $f->disableIdFilter();
-            $f->like('category', 'Category');
-            $f->like('group_or_practice', 'Group or practice');
+            $f->like('category', 'Category')->select(['Vet' => 'Vet', 'Paravet' => 'Paravet']);
+            $f->like('education', 'Education')->select(['None' => 'None', 'Primary' => 'Primary', 'Secondary' => 'Secondary', 'Tertiary' => 'Tertiary', 'Bachelor' => 'Bachelor', 'Masters' => 'Masters', 'PhD' => 'PhD', 'Diploma' => 'Diploma']);
             $f->between('created_at', 'Filter by date registered')->date();
         });
 
@@ -56,6 +56,20 @@ class VetController extends AdminController
             $export->except(['created_at', 'updated_at','profile_picture',]);
            
         });
+        $grid->column('profile_picture', __('Profile picture'))->display(function ($logo) {
+            // Set a default logo path
+            $defaultLogo = '/storage/assets/person.png';
+        
+            // Check if the logo exists and is readable
+            $logoPath = $logo ? "/storage/$logo" : $defaultLogo;
+            
+            // Use the default logo if the specific logo is not readable
+            if (!is_readable(public_path($logoPath))) {
+                $logoPath = $defaultLogo;
+            }
+        
+            return "<img src='$logoPath' style='width:55px; height:50px; border-radius:50%;'>";
+        });
 
         $grid->column('created_at', __('Registered On'))->display(function ($x) {
             $c = Carbon::parse($x);
@@ -71,15 +85,13 @@ class VetController extends AdminController
         $grid->column('primary_phone_number', __('Primary phone number'));
         $grid->column('email', __('Email'));
         $grid->column('areas_of_operation', __('Areas of operation'));
-        $grid->column('status', __('Status'))->display(function ($x) {
-            if ($x == 'approved') {
-                return "<span class='label label-success'>$x</span>";
-            } elseif ($x == 'rejected') {
-                return "<span class='label label-danger'>$x</span>";
-            } elseif ($x == 'halted') {
-                return "<span class='label label-warning'>$x</span>";
+        $grid->column('status', __('Status'))->display(function ($status) {
+            if ($status == 'approved') {
+                return "<span class='label label-success'>Approved</span>";
+            } elseif ($status == 'rejected') {
+                return "<span class='label label-danger'>Rejected</span>";
             } else {
-                return "<span class='label label-info'>$x</span>";
+                return "<span class='label label-warning'>Pending</span>";
             }
         });
 
@@ -113,9 +125,39 @@ class VetController extends AdminController
         $form = new Form(new Vet());
 
         if($form->isCreating()){
-            $form->hidden('status')->default('Pending');
+            $form->hidden('status')->default('approved');
             $form->hidden('added_by')->default(Admin::user()->id);
         }
+
+           //after saving the form, redirect to the table view
+           $form->saved(function (Form $form) {
+            admin_toastr('Record saved successfully', 'success');
+            return redirect('/admin/vets');
+        });
+
+
+        //when saving the form, check that the available times are not overlapping and that the start time is before the end time for each day and that it has been entered
+        $form->saving(function (Form $form) {
+            $availableTimes = $form->availableTimes;
+            $days = [];
+            //check if null
+            if (empty($availableTimes)) {
+                admin_toastr('Please enter the available times', 'error');
+                return back()->withInput();
+            }
+            foreach ($availableTimes as $time) {
+                if (in_array($time['day'], $days)) {
+                    admin_toastr('You have entered the same day more than once', 'error');
+                    return back()->withInput();
+                }
+                $days[] = $time['day'];
+                if ($time['start_time'] >= $time['end_time']) {
+                    admin_toastr('The start time must be before the end time', 'error');
+                    return back()->withInput();
+                }
+            
+            }
+        }); 
 
         $form->select('title', __('Title'))
         ->options([
@@ -148,7 +190,7 @@ class VetController extends AdminController
         $form->date('registration_date', __('Registration date'))->rules('required');
         $form->textarea('brief_profile', __('Brief profile'));
         $form->text('physical_address', __('Physical address'))->rules('required');
-        $form->email('email', __('Email'))->rules('unique:vets,email')->rules('required');
+        $form->email('email', __('Email'))->rules('required');
         $form->text('primary_phone_number', __('Primary phone number'))->rules('required');
         $form->text('secondary_phone_number', __('Alternative phone number'));
         $form->text('postal_address', __('Postal address'));
@@ -171,16 +213,18 @@ class VetController extends AdminController
          
         });
 
-        $form->file('certificate_of_registration', __('Certificate of registration'))->rules('required');
-        $form->file('license', __('License'))->rules('required');
-        $form->multipleFile('other_documents', __('Other documents'));
-        $form->file('profile_picture', __('Profile picture'));
+        $form->file('certificate_of_registration', __('Certificate of registration'))->rules('mimes:pdf', ['mimes' => 'Only pdf files are allowed'],'size:1048')->required();
+        $form->file('license', __('License'))->rules('mimes:pdf', ['mimes' => 'Only pdf files are allowed'],'size:1048')->required();
+        $form->image('profile_picture', __('Profile picture'))->rules('mimes:jpeg,jpg,png', ['mimes' => 'Only jpeg, jpg and png files are allowed'],'size:1048');
         $form->hidden('user_id');
 
-        //check if the user is an admin and show the status field
-        if (Admin::user()->inRoles(['administrator','ldf_admin'])) {
-            $form->radioCard('status', __('Status'))->options(['halted' => 'Halted', 'approved' => 'Approved', 'rejected' => 'Rejected'])->rules('required');
-        }
+         //check if the user is an admin and show the status field
+         if($form->isEditing())
+         {
+             if (Admin::user()->inRoles(['administrator','ldf_admin'])) {
+             $form->radioCard('status', __('Status'))->options(['halted' => 'Halted', 'approved' => 'Approved', 'rejected' => 'Rejected'])->rules('required');
+             }
+         }
 
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();
