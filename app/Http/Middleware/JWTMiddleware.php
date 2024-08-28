@@ -17,6 +17,28 @@ class JWTMiddleware
     public function handle(Request $request, Closure $next)
     {
         try {
+
+            $headers = getallheaders(); //get header
+
+            header('Content-Type: application/json');
+
+            $Authorization = "";
+            if (isset($headers['Authorization']) && $headers['Authorization'] != "") {
+                $Authorization = $headers['Authorization'];
+            } else if (isset($headers['authorization']) && $headers['authorization'] != "") {
+                $Authorization = $headers['authorization'];
+            } else if (isset($headers['Authorizations']) && $headers['Authorizations'] != "") {
+                $Authorization = $headers['Authorizations'];
+            } else if (isset($headers['authorizations']) && $headers['authorizations'] != "") {
+                $Authorization = $headers['authorizations'];
+            } else if (isset($headers['Tok']) && $headers['Tok'] != "") {
+                $Authorization = $headers['Tok'];
+            }
+
+
+            $request->headers->set('Authorization', $Authorization); // set header in request
+            $request->headers->set('authorization', $Authorization); // set header in request
+
             $user = Auth::guard('api')->user();
             if (!$user) {
                 throw new \Exception('Unauthorized');
