@@ -14,7 +14,7 @@ use App\Http\Controllers\ParavetRequestController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserRoleController;
-
+use App\Http\Middleware\JWTMiddleware;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,12 +54,18 @@ Route::post('/register-farmers', [FarmerController::class, 'store']);
 Route::put('/update-farmers/{id}', [FarmerController::class, 'update']);
 Route::delete('/delete-farmers/{id}', [FarmerController::class, 'destroy']);
 
+/* make group route callded v2 and make it have this middleware JwtMiddleware */
+Route::group(['middleware' => JWTMiddleware::class], function () {
+    Route::get('/me', [AuthController::class, 'getAuthenticatedUser']);
+});
+
+
 // //protected routes for authenticated users
-Route::group(['middleware' => ['auth:api']], function () 
-{
+// Route::group(['middleware' => ['auth:api']], function () {
+Route::group(['middleware' => JWTMiddleware::class], function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'getAuthenticatedUser']);
-   
+
     //farms registration routes
     Route::resource('/farms', FarmController::class);
     Route::get('/farmers-farms/{id}', [FarmController::class, 'showFarmerFarms']);
@@ -83,17 +89,17 @@ Route::group(['middleware' => ['auth:api']], function ()
 
     //cart registration routes
     Route::resource('/cart', CartController::class);
-    
+
 
     // //order registration routes
     // Route::post('/order', [OrderController::class, 'store']);
     // Route::get('/order', [OrderController::class, 'index']);
 
     //paravet request registration routes
-     Route::resource('/paravet-request', ParavetRequestController::class);
-     Route::post('/get-available-paravets', [ParavetRequestController::class, 'availableParavets']);
-     Route::get('/paravet-requests-stats/{id}', [ParavetRequestController::class, 'getTotals']);
-    
+    Route::resource('/paravet-request', ParavetRequestController::class);
+    Route::post('/get-available-paravets', [ParavetRequestController::class, 'availableParavets']);
+    Route::get('/paravet-requests-stats/{id}', [ParavetRequestController::class, 'getTotals']);
+
     //paravet ratings
     Route::resource('/rate-paravet', RatingController::class);
     Route::get('/average-ratings', [RatingController::class, 'averageRating']);
@@ -103,11 +109,4 @@ Route::group(['middleware' => ['auth:api']], function ()
 
     //get user roles
     Route::get('/user-roles', [UserRoleController::class, 'show']);
-
-
 });
-
-
-
-
-

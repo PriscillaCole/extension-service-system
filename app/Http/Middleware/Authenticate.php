@@ -34,7 +34,7 @@ class Authenticate extends Middleware
     {
         // Example token authentication logic
         if (!$request->bearerToken()) {
-            abort(401, 'Unauthorized');
+            abort(401, 'Unauthorized 2');
         }
 
       
