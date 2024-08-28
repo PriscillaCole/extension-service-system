@@ -2,22 +2,53 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Api_Utils;
+use App\Models\Utils;
 use Closure;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use JWTAuth;
+use Exception;
+use Tymon\JWTAuth\Facades\JWTAuth as FacadesJWTAuth;
+use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
+use Illuminate\Support\Str;
 
-
-class JWTMiddleware
+class JwtMiddleware extends BaseMiddleware
 {
+
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
      */
-    public function handle(Request $request, Closure $next)
-    {
-        try {
+    protected $except = [
+        'login',
+        'register',
+        'min/login',
+    ];
 
+    public function handle($request, Closure $next)
+    {
+        if (!$request->expectsJson()) {
+            return $next($request);
+        }
+
+
+        if (
+            Str::contains($_SERVER['REQUEST_URI'], 'login') ||
+            Str::contains($_SERVER['REQUEST_URI'], 'register')
+        ) {
+            return $next($request);
+        }
+
+        // If request starts with api then we will check for token
+        if (!$request->is('api/*')) {
+            return $next($request);
+        }
+
+        //$request->headers->set('Authorization', $headers['authorization']);// set header in request
+        try {
+            //$headers = apache_request_headers(); //get header
             $headers = getallheaders(); //get header
 
             header('Content-Type: application/json');
@@ -38,15 +69,18 @@ class JWTMiddleware
 
             $request->headers->set('Authorization', $Authorization); // set header in request
             $request->headers->set('authorization', $Authorization); // set header in request
-            $request->headers->set('Authorizations', $Authorization); // set header in request
-            $user = Auth::guard('api')->user();
-            if (!$user) {
-                throw new \Exception('Forbidden, token: ' . $Authorization);
-            }
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 401);
-        }
 
+            $user = FacadesJWTAuth::parseToken()->authenticate();
+        } catch (Exception $e) {
+            if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
+                return response()->json(['status' => 'Token is Invalid']);
+            } else if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
+                return response()->json(['status' => 'Token is Expired']);
+            } else {
+                return $next($request);
+                //return Api_Utils::error($e->getMessage());
+            }
+        }
         return $next($request);
     }
 }
