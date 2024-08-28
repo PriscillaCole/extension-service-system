@@ -53,7 +53,7 @@ Route::put('/update-farmers/{id}', [FarmerController::class, 'update']);
 Route::delete('/delete-farmers/{id}', [FarmerController::class, 'destroy']);
 
 /* make group route callded v2 and make it have this middleware JwtMiddleware */
-Route::group(['middleware' => App\\Http\\Middleware\\JwtMiddlewar::class], function () {
+Route::group(['middleware' => \App\\Http\\Middleware\\JwtMiddlewar::class], function () {
     Route::get('/me', [AuthController::class, 'getAuthenticatedUser']);
 });
 
