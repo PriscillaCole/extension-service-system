@@ -61,7 +61,8 @@ Route::group(['middleware' => JWTMiddleware::class], function () {
 
 
 // //protected routes for authenticated users
-Route::group(['middleware' => ['auth:api']], function () {
+// Route::group(['middleware' => ['auth:api']], function () {
+Route::group(['middleware' => JWTMiddleware::class], function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'getAuthenticatedUser']);
 
