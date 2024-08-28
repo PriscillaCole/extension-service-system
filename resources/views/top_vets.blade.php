@@ -62,7 +62,7 @@
                     <tr>
                         <td>
                             <div class="paravet-info">
-                                <img src="{{ $vet->profile_picture ? asset($vet->profile_picture) : asset('storage/images/default_image.png') }}" alt="Profile Picture" width="50" height="50">
+                                <img src="{{ $vet->profile_picture ? asset($vet->profile_picture) : asset('storage/assets/person.png') }}" alt="Profile Picture" width="50" height="50">
                                 <div class="paravet-details">
                                     <span class="value"><a href="/vets/{{$vet->id}}">{{ $vet->surname }} {{ $vet->given_name }}</a></span>
                                     <span class="value">Location: {{ $vet->location }}</span>
