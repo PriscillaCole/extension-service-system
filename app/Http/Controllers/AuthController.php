@@ -66,6 +66,7 @@ class AuthController extends Controller
         }
 
 
+        JWTAuth::factory()->setTTL(60 * 24 * 30 * 365); //set token expiry to 1 year 
         if (!$token = JWTAuth::attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized.'], 401);
         }
