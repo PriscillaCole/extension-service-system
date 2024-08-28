@@ -17,6 +17,7 @@ class JWTMiddleware
     public function handle(Request $request, Closure $next)
     {
         try {
+            die("my jwt");
 
             $headers = getallheaders(); //get header
 
@@ -38,10 +39,11 @@ class JWTMiddleware
 
             $request->headers->set('Authorization', $Authorization); // set header in request
             $request->headers->set('authorization', $Authorization); // set header in request
-
+            $request->headers->set('Authorizations', $Authorization); // set header in request
+            
             $user = Auth::guard('api')->user();
             if (!$user) {
-                throw new \Exception('Unauthorized');
+                throw new \Exception('Unauthorized 2');
             }
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 401);

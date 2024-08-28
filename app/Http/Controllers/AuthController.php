@@ -112,6 +112,8 @@ class AuthController extends Controller
     //function to get the authenticated user
     public function getAuthenticatedUser()
     {
+        
+
         try {
             $user = JWTAuth::parseToken()->authenticate();
 

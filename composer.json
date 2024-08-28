@@ -9,8 +9,7 @@
         "encore/laravel-admin": "^1.8",
         "laravel/framework": "^11.9",
         "laravel/tinker": "^2.9",
-        "laravel/ui": "^4.5",
-        "tymon/jwt-auth": "^2.1"
+        "laravel/ui": "^4.5"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
