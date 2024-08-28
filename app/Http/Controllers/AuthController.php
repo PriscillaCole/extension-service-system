@@ -56,9 +56,13 @@ class AuthController extends Controller
         public function login(Request $request)
         {
             $credentials = $request->only('email', 'password');
+            $u = User::where('email', $request->email)->first();
+            if (!$u) {
+                return response()->json(['error' => 'User not found'], 404);
+            } 
 
             if (!$token = JWTAuth::attempt($credentials)) {
-                return response()->json(['error' => 'Unauthorized'], 401);
+                return response()->json(['error' => 'Unauthorized.'], 401);
             }
 
             //get authenticated user 
