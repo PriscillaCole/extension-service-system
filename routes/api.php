@@ -14,7 +14,7 @@ use App\Http\Controllers\ParavetRequestController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserRoleController;
-
+use App\Http\Middleware\JwtMiddleware;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,6 +53,12 @@ Route::get('/get-farmers/{id}', [FarmerController::class, 'show']);
 Route::post('/register-farmers', [FarmerController::class, 'store']);
 Route::put('/update-farmers/{id}', [FarmerController::class, 'update']);
 Route::delete('/delete-farmers/{id}', [FarmerController::class, 'destroy']);
+
+/* make group route callded v2 and make it have this middleware JwtMiddleware */
+Route::group(['middleware' => JwtMiddleware::class], function () {
+    Route::get('/me', [AuthController::class, 'getAuthenticatedUser']);
+}); 
+
 
 // //protected routes for authenticated users
 Route::group(['middleware' => ['auth:api']], function () 
