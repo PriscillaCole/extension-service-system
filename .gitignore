@@ -6,5 +6,5 @@
 /storage/*.key
 .env
 /.vscode
-/vendor
+
 .htaccess
