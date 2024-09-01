@@ -603,7 +603,6 @@ class ComposerStaticInitac56c6544bbdc47396f7017c5c4316fb
         'App\\Http\\Controllers\\VetsController' => __DIR__ . '/../..' . '/app/Http/Controllers/VetsController.php',
         'App\\Http\\Kernel' => __DIR__ . '/../..' . '/app/Http/Kernel.php',
         'App\\Http\\Middleware\\Authenticate' => __DIR__ . '/../..' . '/app/Http/Middleware/Authenticate.php',
-        'App\\Http\\Middleware\\JWTMiddleware' => __DIR__ . '/../..' . '/app/Http/Middleware/JWTMiddleware.php',
         'App\\Mail\\MyNotification' => __DIR__ . '/../..' . '/app/Mail/MyNotification.php',
         'App\\Models\\AdminRole' => __DIR__ . '/../..' . '/app/Models/AdminRole.php',
         'App\\Models\\AdminRoleUser' => __DIR__ . '/../..' . '/app/Models/AdminRoleUser.php',

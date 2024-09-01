@@ -40,7 +40,6 @@ return array(
     'App\\Http\\Controllers\\VetsController' => $baseDir . '/app/Http/Controllers/VetsController.php',
     'App\\Http\\Kernel' => $baseDir . '/app/Http/Kernel.php',
     'App\\Http\\Middleware\\Authenticate' => $baseDir . '/app/Http/Middleware/Authenticate.php',
-    'App\\Http\\Middleware\\JWTMiddleware' => $baseDir . '/app/Http/Middleware/JWTMiddleware.php',
     'App\\Mail\\MyNotification' => $baseDir . '/app/Mail/MyNotification.php',
     'App\\Models\\AdminRole' => $baseDir . '/app/Models/AdminRole.php',
     'App\\Models\\AdminRoleUser' => $baseDir . '/app/Models/AdminRoleUser.php',
