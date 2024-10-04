@@ -1,3 +1,5 @@
+
+text/x-generic UserController.php ( PHP script, ASCII text )
 <?php
 
 namespace Encore\Admin\Controllers;

@@ -1,3 +1,5 @@
+
+text/x-generic filesystems.php ( PHP script, ASCII text )
 <?php
 
 return [
