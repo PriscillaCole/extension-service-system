@@ -39,6 +39,7 @@ class FarmerController extends Controller
             'cooperative_association' => 'nullable|string',
             'primary_phone_number' => 'required|string|unique:farmers,primary_phone_number',
             'secondary_phone_number' => 'nullable|string',
+            'email'=> 'required|string|unique:farmers,email',
             'is_land_owner' => 'nullable|boolean',
             'production_scale' => 'required|string',
             'access_to_credit' => 'nullable|boolean',

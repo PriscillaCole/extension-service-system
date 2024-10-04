@@ -11,21 +11,42 @@ use Illuminate\Validation\ValidationException;
 
 class FarmAnimalController extends Controller
 {
-    public function index()
+      public function index()
     {
         $farmAnimals = FarmAnimal::all();
-        return response()->json($farmAnimals);
+
+        //for each farm animal, get the owner details and added_by details
+        $farmAnimal = [];
+        foreach ($farmAnimals as $animal) {
+            $farm = Farm::find($animal->farm_id);
+            $animal = $animal;
+            $farmAnimal[] = [
+                'farm_animal' => $animal,
+                'farm' => $farm
+            ];
+        }
+        return response()->json($farmAnimal);
     }
 
-    public function show($id)
-    {
-        $farmAnimal = FarmAnimal::find($id);
-        if ($farmAnimal) {
-            return response()->json($farmAnimal);
-        } else {
-            return response()->json(['message' => 'FarmAnimal not found'], 404);
-        }
+public function show($id)
+{
+    $farmAnimal = FarmAnimal::find($id);
+    if ($farmAnimal) {
+        // Get the farm details for the farm animal
+        $farm = Farm::find($farmAnimal->farm_id);
+        
+        // Prepare the response with farm animal and farm details
+        $response = [
+            'farm_animal' => $farmAnimal,
+            'farm' => $farm
+        ];
+        
+        return response()->json($response);
+    } else {
+        return response()->json(['message' => 'FarmAnimal not found'], 404);
     }
+}
+
 
     public function store(Request $request)
     {
@@ -125,11 +146,26 @@ class FarmAnimalController extends Controller
         }
     }
     
+       
     public function getFarmAnimalsByFarm($farmId)
     {
         $farms = FarmAnimal::where('farm_id', $farmId)->get();
-        return response()->json($farms);
+       
+        //for each farm animal, get the farm details
+        $farmAnimal = [];
+        foreach ($farms as $animal) {
+            $farm = Farm::find($animal->farm_id);
+            $animal = $animal;
+            $farmAnimal[] = [
+                'farm_animal' => $animal,
+                'farm' => $farm
+            ];
+        }
+
+        return response()->json($farmAnimal);
     }
+    
+    
 }
 
 

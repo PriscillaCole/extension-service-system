@@ -12,18 +12,50 @@ use App\Models\Utils;
 
 class FarmController extends Controller
 {
-    public function index()
-    {
-        $farms = Farm::all();
-        return $farms;
+ public function index()
+{
+    $farms = Farm::all();
+
+    // Initialize an empty array to store farm details
+    $farmDetails = [];
+
+    // For each farm, get the owner details and added by details
+    foreach ($farms as $farm) {
+        $farmer = Farmer::find($farm->owner_id);
+        $added_by = Farmer::find($farm->added_by);
+
+        $farmDetails[] = [
+            'farm' => $farm,
+            'farmer' => $farmer,
+            'added_by' => $added_by,
+        ];
     }
 
-    public function show($id)
+    return response()->json($farmDetails);
+}
+
+
+
+   public function show($id)
     {
         $farm = Farm::find($id);
-        return response()->json($farm);
+        
+        if ($farm) {
+            $farmer = Farmer::find($farm->owner_id);
+            $added_by = Farmer::find($farm->added_by);
+            $farm = [
+                'farm' => $farm,
+                'farmer' => $farmer,
+                'added_by' => $added_by
+            ];
+            return response()->json($farm);
+        } else {
+            return response()->json([
+                'message' => 'Farm not found'
+            ], 404);
+        }
     }
-
+   
     public function showFarmerFarms($id)
     {
         $farms = Farm::where('owner_id', $id)->get();
@@ -34,8 +66,22 @@ class FarmController extends Controller
             ], 404);
         }
         
-        return response()->json($farms);
+        
+        //for each farm, get the owner details and added by details
+        $farmerFarms = [];
+        foreach ($farms as $farm) {
+            $farmer = Farmer::find($farm->owner_id);
+            $added_by = Farmer::find($farm->added_by);
+            $farmerFarms[] = [
+                'farm' => $farm,
+                'farmer' => $farmer,
+                'added_by' => $added_by
+            ];
+        }
+
+        return response()->json($farmerFarms);
     }
+   
    
     public function store(Request $request)
     {

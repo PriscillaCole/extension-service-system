@@ -61,6 +61,7 @@ class Utils extends Model
         {
                 //disable create button and delete
                 $grid->actions(function ($actions) {
+                     $actions->disableDelete();
                     
                 if ($actions->row->status == 'approved') {
                     //check if the logged in user id is the same as the user_id in the row added_by

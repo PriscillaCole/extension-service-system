@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Models\User;
 
 class CartController extends Controller
 {
@@ -81,10 +82,26 @@ class CartController extends Controller
         }
     }
 
-    public function index()
+    public function show($id)
     {
-        $cartItems = Cart::where('user_id', Auth::id())->get();
-        return response()->json($cartItems);
+    
+        $cartItems = Cart::where('user_id', $id)->get();
+        $cart= [];
+        //for each cart item, get the product details
+        foreach ($cartItems as $cartItem) {
+            $product = Product::find($cartItem->product_id);
+            $user = User::find($cartItem->user_id);
+            $cart[] = [
+                'cart' => $cartItem,
+                'product' => $product,
+                'user' => $user
+                
+            ];
+        }
+
+        return response()->json($cart);
+        
+        
     }
 }
 

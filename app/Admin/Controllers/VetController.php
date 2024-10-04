@@ -10,6 +10,7 @@ use Encore\Admin\Show;
 use Carbon\Carbon;
 use Encore\Admin\Facades\Admin;
 use App\Models\Utils;
+use App\Models\Location;
 
 
 class VetController extends AdminController
@@ -174,16 +175,16 @@ class VetController extends AdminController
         $form->radio('gender', __('Gender'))->options(['M'=> 'Male', 'F' => 'Female'])->rules('required');
         $form->date('date_of_birth', __('Date of birth'))->rules('required|before:today');
         $form->select('education', __('Highest level of education'))
-        ->options([
-            'None' => 'None',
-            'Primary' => 'Primary',
-            'Secondary' => 'Secondary',
-            'Tertiary' => 'Tertiary',
-            'Bachelor' => 'Bachelor',
-            'Masters' => 'Masters',
-            'PhD' => 'PhD',
-            'Diploma' => 'Diploma',
-        ]);
+            ->options([
+                'None' => 'None',
+                'Primary Education' => 'Primary Education',
+                'Secondary Education' => 'Secondary Education',
+                'Tertiary Education' => 'Tertiary Education',
+                'Bachelor Degree' => 'BachelorS Degree',
+                'Masters Degree' => 'Masters Degree',
+                'PhD' => 'PhD',
+                'Diploma' => 'Diploma',
+            ]);
         $form->radio('marital_status', __('Marital status'))->options(['S'=> 'Single', 'M' => 'Married', 'D' => 'Divorced', 'W' => 'Widowed']);
         $form->text('group_or_practice', __('Group or practice'))->rules('required');
         $form->text('registration_number', __('Registration number'))->rules('required');
@@ -195,8 +196,8 @@ class VetController extends AdminController
         $form->text('secondary_phone_number', __('Alternative phone number'));
         $form->text('postal_address', __('Postal address'));
         $form->textarea('services_offered', __('Services offered'))->rules('required');
-        $form->text('areas_of_operation', __('Areas of operation'))->rules('required');
-
+        $form->select('areas_of_operation', __('District of operation'))->options(Location::pluck('name', 'name')->toArray())
+        ->rules('required');
         //add available times
         $form->hasMany('availableTimes', 'Available times', function (Form\NestedForm $form) {
             $form->select('day', 'Day')->options([
@@ -219,15 +220,20 @@ class VetController extends AdminController
         $form->hidden('user_id');
 
          //check if the user is an admin and show the status field
-         if($form->isEditing())
+           if($form->isEditing())
          {
-             if (Admin::user()->inRoles(['administrator','ldf_admin'])) {
-             $form->radioCard('status', __('Status'))->options(['halted' => 'Halted', 'approved' => 'Approved', 'rejected' => 'Rejected'])->rules('required');
+               if (Admin::user()->inRoles(['administrator','ldf_admin'])) {
+             $form->radioCard('status', __('Status'))->options(['halted' => 'Halted', 'approved' => 'Approved', 'rejected' => 'Rejected'])->rules('required')
+            ->when('in',['rejected','halted'], function (Form $form) {
+                $form->textarea('rejection_reason', 'Rejection reason')->rules('required');
+                                
+            
+             });
              }
-         }
+            }
 
         $form->tools(function (Form\Tools $tools) {
-            $tools->disableDelete();
+          
             $tools->disableView();
            
         });

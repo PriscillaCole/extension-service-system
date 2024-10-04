@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\HealthRecord;
 use App\Models\Farmer;
 use App\Models\Farm;
-use App\Models\Animal;
+use App\Models\FarmAnimal;
+use App\Models\Vet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -15,13 +16,37 @@ class HealthRecordController extends Controller
     public function index()
     {
         $healthRecords = HealthRecord::all();
-        return response()->json($healthRecords);
+        $healthRecord= [];
+        //for each get the farm object, paravet object and animal object
+        foreach ($healthRecords as $record) {
+            $farm = Farm::find($record->farm_id);
+            $paravet = Vet::find($record->paravet_id);
+            $animal = FarmAnimal::find($record->animal_id);
+            $healthRecord[] = [
+                'health_record' => $record,
+                'farm' => $farm,
+                'paravet' => $paravet,
+                'animal' => $animal
+            ];
+        }
+
+        return response()->json($healthRecord);
+    
     }
 
     public function show($id)
     {
         $healthRecord = HealthRecord::find($id);
         if ($healthRecord) {
+            $farm = Farm::find($healthRecord->farm_id);
+            $paravet = Vet::find($healthRecord->paravet_id);
+            $animal = FarmAnimal::find($healthRecord->animal_id);
+            $healthRecord = [
+                'health_record' => $healthRecord,
+                'farm' => $farm,
+                'paravet' => $paravet,
+                'animal' => $animal
+            ];
             return response()->json($healthRecord);
         } else {
             return response()->json(['message' => 'HealthRecord not found'], 404);
@@ -140,27 +165,87 @@ class HealthRecordController extends Controller
         }
     }
     
-    public function showHealthRecordsByAnimal($farmerId)
+   public function showHealthRecordsByAnimal($animalId)
     {
-        $farms = HealthRecord::where('animal_id', $farmerId)->get();
-        return response()->json($farms);
+        $healthRecords  = HealthRecord::where('animal_id', $animalId)->get();
+
+        $healthRecord= [];
+        //for each get the farm object, paravet object and animal object
+        foreach ($healthRecords as $record) {
+            $farm = Farm::find($record->farm_id);
+            $paravet = Vet::find($record->paravet_id);
+            $animal = FarmAnimal::find($record->animal_id);
+            $healthRecord[] = [
+                'health_record' => $record,
+                'farm' => $farm,
+                'paravet' => $paravet,
+                'animal' => $animal
+            ];
+        }
+
+        return response()->json($healthRecord);
     }
 
     public function showHealthRecordsByFarm($farmId)
     {
-        $animals = HealthRecord::where('farm_id', $farmId)->get();
-        return response()->json($animals);
+       
+        $healthRecords = HealthRecord::where('farm_id', $farmId)->get();
+        $healthRecord= [];
+        //for each get the farm object, paravet object and animal object
+        foreach ($healthRecords as $record) {
+            $farm = Farm::find($record->farm_id);
+            $paravet = Vet::find($record->paravet_id);
+            $animal = FarmAnimal::find($record->animal_id);
+            $healthRecord[] = [
+                'health_record' => $record,
+                'farm' => $farm,
+                'paravet' => $paravet,
+                'animal' => $animal
+            ];
+        }
+
+        return response()->json($healthRecord);
     }
 
     public function showHealthRecordsByVet($paravetId)
     {
-        $animals = HealthRecord::where('paravet_id', $paravetId)->get();
-        return response()->json($animals);
+       
+        $healthRecords = HealthRecord::where('paravet_id', $paravetId)->get();
+        $healthRecord= [];
+        //for each get the farm object, paravet object and animal object
+        foreach ($healthRecords as $record) {
+            $farm = Farm::find($record->farm_id);
+            $paravet = Vet::find($record->paravet_id);
+            $animal = FarmAnimal::find($record->animal_id);
+            $healthRecord[] = [
+                'health_record' => $record,
+                'farm' => $farm,
+                'paravet' => $paravet,
+                'animal' => $animal
+            ];
+        }
+
+        return response()->json($healthRecord);
     }
 
     public function showHealthRecordsByDate($date)
     {
-        $animals = HealthRecord::where('visit_date', $date)->get();
-        return response()->json($animals);
+       
+        $healthRecords = HealthRecord::where('visit_date', $date)->get();
+        $healthRecord= [];
+        //for each get the farm object, paravet object and animal object
+        foreach ($healthRecords as $record) {
+            $farm = Farm::find($record->farm_id);
+            $paravet = Vet::find($record->paravet_id);
+            $animal = FarmAnimal::find($record->animal_id);
+            $healthRecord[] = [
+                'health_record' => $record,
+                'farm' => $farm,
+                'paravet' => $paravet,
+                'animal' => $animal
+            ];
+        }
+
+        return response()->json($healthRecord);
     }
 }

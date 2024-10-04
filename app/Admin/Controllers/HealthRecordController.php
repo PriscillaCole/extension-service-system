@@ -78,11 +78,11 @@ class HealthRecordController extends AdminController
 
         
 
-        $form->select('farmer_id', 'Farmer')->options(\App\Models\Farmer::all()->pluck('surname', 'id'))->attribute('id', 'farmer_id');
-        $form->select('farm_id', __('Farm'))->attribute('id', 'farm_id');
-        $form->select('animal_id', __('Animal'))->attribute('id', 'animal_id');
-        $form->select('paravet_id', __('Paravet'))->options(\App\Models\Vet::all()->pluck('surname', 'id'));
-        $form->date('visit_date', __('Visit date'))->default(date('Y-m-d'));
+        $form->select('farmer_id', 'Farmer')->options(\App\Models\Farmer::all()->pluck('surname', 'id'))->attribute('id', 'farmer_id')->required();
+        $form->select('farm_id', __('Farm'))->attribute('id', 'farm_id')->required();
+        $form->select('animal_id', __('Animal'))->attribute('id', 'animal_id')->required();
+        $form->select('paravet_id', __('Paravet'))->options(\App\Models\Vet::all()->pluck('surname', 'id'))->required();
+        $form->date('visit_date', __('Visit date'))->default(date('Y-m-d'))->required();
       
         $form->divider('Health Metrics');
         $form->decimal('weight', __('Weight'));

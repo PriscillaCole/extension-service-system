@@ -56,7 +56,7 @@ class Farmer extends Model
                     $new_user = new User();
                     $new_user->username = $model->primary_phone_number;
                     $new_user->name = $model->surname.' '.$model->given_name;
-                    $new_user->email = $model->primary_phone_number;
+                    $new_user->email = $model->email ?? $model->primary_phone_number . '@example.com';
                     $new_user->password = bcrypt('password');
                     $new_user->avatar = $model->profile_picture ? $model->profile_picture : 'images/default_image.png';
                     $new_user->save();
@@ -74,16 +74,26 @@ class Farmer extends Model
           {
                
 
-                Notification::send_notification($model, 'Farmer', request()->segment(count(request()->segments())));
+                Notification::update_notification($model, 'Farmer', request()->segment(count(request()->segments())));
 
                 $new_user = User::where('email', $model->primary_phone_number)
                 ->orWhere('username', $model->primary_phone_number)
                 ->first();
-                $new_role = new AdminRoleUser();
-                $new_role->role_id = 3;
-                $new_role->user_id = $new_user->id;
-                $new_role->save();
+               
+                if ($new_user) {
+                    // Check if the user already has the role with role_id = 3
+                    $existing_role = AdminRoleUser::where('user_id', $new_user->id)
+                                                  ->where('role_id', 3)
+                                                  ->first();
                 
+                    // Only assign the role if the user doesn't already have it
+                    if (!$existing_role) {
+                        $new_role = new AdminRoleUser();
+                        $new_role->role_id = 3;
+                        $new_role->user_id = $new_user->id;
+                        $new_role->save();
+                    }
+                }
 
           });
 

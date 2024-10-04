@@ -124,7 +124,7 @@ class ServiceProviderController extends AdminController
             $form->hidden('added_by')->default(Admin::user()->id);
         }
         $form->tools(function (Form\Tools $tools) {
-            $tools->disableDelete();
+           
             $tools->disableView();
            
         });

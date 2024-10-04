@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Models\Utils;
+use App\Models\ServiceProvider;
+use App\Models\Farmer;
 
 class ProductController extends Controller
 {
@@ -29,7 +31,7 @@ class ProductController extends Controller
             'status' => 'required|string',
             'image' => 'required|string',
             'stock' => 'required|integer',
-            'category' => 'required|string|in:' . implode(',', config('categories')),
+            'category' => 'required|string',
         ];
 
             try {
@@ -75,7 +77,7 @@ class ProductController extends Controller
             'status' => 'required|string',
             'image' => 'required|string',
             'stock' => 'required|integer',
-            'category' => 'required|string|in:' . implode(',', config('categories')),
+            'category' => 'required|string',
         ];
 
 
@@ -125,40 +127,108 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::all();
-        return response()->json($products);
+    
+        $productDetails = [];
+        // For each product, check if the provider_id is not null, get the provider object or the farmer object
+        foreach ($products as $product) {
+            if ($product->provider_id) {
+                $provider = ServiceProvider::find($product->provider_id);
+                $productDetails[] = [
+                    'product' => $product,
+                    'provider' => $provider
+                ];
+            } else {
+                $farmer = Farmer::find($product->farmer_id);
+                $productDetails[] = [
+                    'product' => $product,
+                    'farmer' => $farmer
+                ];
+            }
+        }
+    
+        return response()->json($productDetails);
+    }
+    
+
+
+  public function search(Request $request)
+{
+    $query = $request->input('query');
+    $category = $request->input('category');
+
+    // Initialize the product query
+    $productsQuery = Product::query();
+
+    // Apply search filters
+    if ($query) {
+        $productsQuery->where(function($q) use ($query) {
+            $q->where('name', 'LIKE', "%{$query}%")
+              ->orWhere('description', 'LIKE', "%{$query}%");
+        });
     }
 
-
-    public function search(Request $request)
-    {
-        $query = $request->input('query');
-        $category = $request->input('category');
-
-        $products = Product::query();
-
-        if ($query) {
-            $products->where('name', 'LIKE', "%{$query}%")
-                     ->orWhere('description', 'LIKE', "%{$query}%");
-        }
-
-        if ($category) {
-            $products->where('category', $category);
-        }
-
-        return response()->json($products->get());
+    if ($category) {
+        $productsQuery->where('category', $category);
     }
+
+    // Get the filtered products
+    $products = $productsQuery->get();
+
+    // Initialize an array to hold the product details
+    $productDetails = [];
+
+    // For each product, check if the provider_id is not null and get the respective provider or farmer object
+    foreach ($products as $product) {
+        if ($product->provider_id) {
+            $provider = ServiceProvider::find($product->provider_id);
+            $productDetails[] = [
+                'product' => $product,
+                'provider' => $provider
+            ];
+        } else {
+            $farmer = Farmer::find($product->farmer_id);
+            $productDetails[] = [
+                'product' => $product,
+                'farmer' => $farmer
+            ];
+        }
+    }
+
+    // Return the product details as a JSON response
+    return response()->json($productDetails);
+}
+
 
     public function categories()
     {
         return response()->json(config('categories'));
     }
 
-    //get products belonging to a user
     public function show($id)
     {
         $products = Product::where('provider_id', $id)->get();
-        return response()->json($products);
+    
+        $productDetails = [];
+        // For each product, check if the provider_id is not null, get the provider object or the farmer object
+        foreach ($products as $product) {
+            if ($product->provider_id) {
+                $provider = ServiceProvider::find($product->provider_id);
+                $productDetails[] = [
+                    'product' => $product,
+                    'provider' => $provider
+                ];
+            } else {
+                $farmer = Farmer::find($product->farmer_id);
+                $productDetails[] = [
+                    'product' => $product,
+                    'farmer' => $farmer
+                ];
+            }
+        }
+    
+        return response()->json($productDetails);
     }
+    
 
 
 }

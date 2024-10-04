@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Location;
 use Illuminate\Http\Request;
 use App\Models\ServiceProvider;
 use App\Models\Utils;
@@ -184,6 +185,12 @@ class ServiceProviderController extends Controller
         $serviceProvider->delete();
 
         return response()->json(['message' => 'Service provider deleted successfully']);
+    }
+    
+        //get list of districts
+    public function locations(){
+        $locations = Location::all();
+        return response()->json($locations);
     }
 
 

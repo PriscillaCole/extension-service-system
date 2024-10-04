@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ParavetRequest;
+use App\Models\User;
 use App\Models\Vet;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -85,12 +86,26 @@ class ParavetRequestController extends Controller
     }
 
     // Method to fetch all paravet requests
-    public function index()
+    public function getRequestsOfAFarmer($id)
     {
-        $paravetRequests = ParavetRequest::all();
+        $paravetRequests = ParavetRequest::where('user_id',$id)->get();
 
-        return response()->json($paravetRequests);
+        if (!$paravetRequests) {
+            return response()->json(['message' => 'Paravet request not found'], 404);
+        }
+
+        $requests = [];
+        foreach ($paravetRequests as $request) {
+            $farmer = User::find($id);
+            $requests[] = [
+                'farmer' => $farmer,
+                'request' => $request,
+                'paravet' => Vet::find($request->paravet_id)
+            ];
+        }
+        return response()->json($requests);
     }
+   
 
     // Method to fetch paravet request belonging to a vet
     public function show($id)
@@ -101,7 +116,16 @@ class ParavetRequestController extends Controller
             return response()->json(['message' => 'Paravet request not found'], 404);
         }
 
-        return response()->json($paravetRequest);
+        $requests = [];
+        foreach ($paravetRequest as $request) {
+            $paravet = Vet::find($id);
+            $requests[] = [
+                'paravet' => $paravet,
+                'request' => $request,
+                'farmer' => User::find($request->user_id)
+            ];
+        }   
+        return response()->json($requests);
     }
 
     // Method to update a paravet request

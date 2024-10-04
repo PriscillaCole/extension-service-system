@@ -76,10 +76,10 @@ class Vet extends Model
           self::created(function ($model) 
           {
             
-
                 $user = auth('admin')->user();
             
                 if (!$user) {
+                     Notification::send_notification($model, 'Vet', request()->segment(count(request()->segments())));
                     return;  // Exit early if no user
                 }
 
@@ -110,7 +110,7 @@ class Vet extends Model
                     $new_user->name = $model->surname.' '.$model->given_name;
                     $new_user->email = $model->email;
                     $new_user->password = bcrypt('password');
-                    $new_user->avatar = $model->profile_picture ? $model->profile_picture : 'images/default_image.png';
+                    $new_user->avatar = $model->profile_picture ? $model->profile_picture : 'assets/person.png';
                     $new_user->save();
 
                     
@@ -126,19 +126,34 @@ class Vet extends Model
             {
                 $user = $model->user_id;
                  if(!$user){
+                     
+                      Notification::update_notification($model, 'Vet', request()->segment(count(request()->segments())-1));
                     return;
                  }
 
                  else{
-                    Notification::update_notification($model, 'ServiceProvider', request()->segment(count(request()->segments())-1));
+                    
+                 
+                  Notification::update_notification($model, 'Vet', request()->segment(count(request()->segments())-1));
+                  $new_user = User::where('email', $model->email)
+                ->orWhere('username', $model->email)
+                ->first();
+                
+                if ($new_user) {
+                    // Check if the user already has the role with role_id = 4
+                    $existing_role = AdminRoleUser::where('user_id', $new_user->id)
+                                                  ->where('role_id', 4)
+                                                  ->first();
+                
+                    // Only assign the role if the user doesn't already have it
+                    if (!$existing_role) {
+                        $new_role = new AdminRoleUser();
+                        $new_role->role_id = 4;
+                        $new_role->user_id = $new_user->id;
+                        $new_role->save();
+                    }
+                }
 
-                    $new_user = User::where('email', $model->email)
-                    ->orWhere('username', $model->email)
-                    ->first();
-                    $new_role = new AdminRoleUser();
-                    $new_role->role_id = 3;
-                    $new_role->user_id = $new_user->id;
-                    $new_role->save();
                  }
  
             });

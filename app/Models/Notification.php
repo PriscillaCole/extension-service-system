@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Mail;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Auth\Database\Administrator;
 use App\Mail\MyNotification;
+use App\Models\Vet;
 
 class Notification extends Model
 {
@@ -75,14 +76,15 @@ class Notification extends Model
     //function to send notifications after creation
     public static function send_notification($model, $model_name, $entity)
     {
-        $name = User::find($model->user_id)->name;
+        $name = $model->user_id ? User::find($model->user_id)->name : $model->surname;
+
 
         //check if $entity is a string
         if(is_string($entity))
         {
             $notification = new Notification();
             $notification->role_id = 1;
-            $notification->message ="New {$entity} has been submitted by " . $name;
+            $notification->message ="New application has been submitted by  " . $name;
             $notification->link = admin_url("auth/login");
             $notification->form_link = admin_url("{$entity}/{$model->id}/edit");
             $notification->status = 'unread';
@@ -95,6 +97,31 @@ class Notification extends Model
 
     }
 
+      //function to send notifications after creation of request
+      public static function send_request_notification($model, $model_name, $entity)
+      {
+          $name = $model->user_id ? User::find($model->user_id)->name : 'New User';
+          $receiver_id = Vet::find($model->paravet_id)->user_id;
+  
+  
+          //check if $entity is a string
+          if(is_string($entity))
+          {
+              $notification = new Notification();
+              $notification->receiver_id = $receiver_id;
+              $notification->message ="New {$entity} has been submitted by " . $name;
+              $notification->link = admin_url("auth/login");
+              $notification->form_link = admin_url("{$entity}/{$model->id}/edit");
+              $notification->status = 'unread';
+              $notification->model = $model_name;
+              $notification->model_id = $model->id;
+              $notification->save();
+          
+              self::sendMail($notification);
+          }
+  
+      }
+
 
     //function to send notifications after an update
     public static function update_notification($model, $model_name, $entity)
@@ -103,26 +130,42 @@ class Notification extends Model
             ->where('model_id', $model->id)
             ->get();
         
-        $name = Administrator::find($model->user_id)->name;
+        $name = $model->user_id ? User::find($model->user_id)->name : $model->surname;
         $receiver_id = $model->user_id;
 
         $notificationData = 
         [
             'halted' => [
-                'message' => "Dear {$name}, your {$entity} has been suspended by the inspector.",
+                'message' => "Dear {$name}, your application has been suspended",
                 'receiver_id' => $receiver_id,
                 'form_link' => admin_url("{$entity}/{$model->id}"),
             ],
             'rejected' => [
-                'message' => "Dear {$name}, your {$entity} has been rejected by the inspector.",
+                'message' => "Dear {$name}, your application has been rejected",
                 'receiver_id' => $receiver_id,
                 'form_link' => admin_url("{$entity}/{$model->id}"),
             ],
             'approved' => [
-                'message' => "Dear {$name}, your {$entity} has been accepted by the inspector.",
+                'message' => "Dear {$name}, your application has been accepted, use {$model->email} and password is password to login. Thank you",
                 'receiver_id' => $receiver_id,
                 'form_link' => admin_url("{$entity}/{$model->id}"),
             ],
+            'delivered' => [
+                'message' => "Dear {$name}, your {$entity} has been delivered",
+                'receiver_id' => $receiver_id,
+                'form_link' => admin_url("{$entity}/{$model->id}"),
+            ],
+            'accepted' => [
+                'message' => "Dear {$name}, your application has been accepted, use {$model->email} and password is password to login. Thank you",
+                'receiver_id' => $receiver_id,
+                'form_link' => admin_url("{$entity}/{$model->id}"),
+            ],
+              'active' => [
+                'message' => "Dear {$name}, your application has been submitted, use {$model->email} and password is password to login. Thank you",
+                'receiver_id' => $receiver_id,
+                'form_link' => admin_url("{$entity}/{$model->id}"),
+            ],
+            
             
             
         ];

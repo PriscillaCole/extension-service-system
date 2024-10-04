@@ -27,6 +27,14 @@ class UserController extends AdminController
         $userModel = config('admin.database.users_model');
 
         $grid = new Grid(new $userModel());
+           $grid->filter(function ($filter) 
+        {
+         // Remove the default id filter
+         $filter->disableIdFilter();
+         $filter->like('id', 'Applicant')->select(\App\Models\User::pluck('name', 'id'));
+        
+        });
+
 
         $grid->column('id', 'ID')->sortable();
         $grid->column('username', trans('admin.username'));
@@ -66,12 +74,12 @@ class UserController extends AdminController
         $show->field('id', 'ID');
         $show->field('username', trans('admin.username'));
         $show->field('name', trans('admin.name'));
-        $show->field('roles', trans('admin.roles'))->as(function ($roles) {
-            return $roles->pluck('name');
-        })->label();
-        $show->field('permissions', trans('admin.permissions'))->as(function ($permission) {
-            return $permission->pluck('name');
-        })->label();
+        // $show->field('roles', trans('admin.roles'))->as(function ($roles) {
+        //     return $roles->pluck('name');
+        // })->label();
+        // $show->field('permissions', trans('admin.permissions'))->as(function ($permission) {
+        //     return $permission->pluck('name');
+        // })->label();
         $show->field('created_at', trans('admin.created_at'));
         $show->field('updated_at', trans('admin.updated_at'));
 

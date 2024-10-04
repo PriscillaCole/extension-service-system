@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Encore\Admin\Auth\Database\Role;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -65,5 +66,11 @@ class User extends Authenticatable implements JWTSubject
     public function notifications()
     {
         return $this->hasMany(Notification::class, 'receiver_id');
+    }
+    
+      //relationship between user and role
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'admin_role_users', 'user_id', 'role_id');
     }
 }

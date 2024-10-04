@@ -55,7 +55,7 @@
         @foreach ($paravets as $paravet)
         <div class="card">
             <div class="card-header">
-                <h3>{{ $paravet->surname }}</h3>
+                <h3>{{$paravet->title}} {{ $paravet->surname }} {{$paravet->given_name}}</h3>
                 <p>Average Rating:
                     @php
                         $averageRating = $paravet->averageRating ?? 0; // Default to 0 if average rating is not set

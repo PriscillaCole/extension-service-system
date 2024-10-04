@@ -61,11 +61,15 @@
                 @foreach($topVets as $vet)
                     <tr>
                         <td>
+                             <?php
+                                $profilePicture = $vet->profile_picture ? asset('storage/' . $vet->profile_picture) :  asset('storage/assets/person.png');
+                                ?>
+           
                             <div class="paravet-info">
-                                <img src="{{ $vet->profile_picture ? asset($vet->profile_picture) : asset('storage/assets/person.png') }}" alt="Profile Picture" width="50" height="50">
+                            <img  src="{{ $profilePicture }}"  alt="Profile Picture" width="50" height="50">
                                 <div class="paravet-details">
-                                    <span class="value"><a href="/vets/{{$vet->id}}">{{ $vet->surname }} {{ $vet->given_name }}</a></span>
-                                    <span class="value">Location: {{ $vet->location }}</span>
+                                    <span class="value"><a href="admin/vets/{{$vet->id}}">{{ $vet->surname }} {{ $vet->given_name }}</a></span>
+                                    <span class="value">Location: {{ $vet->areas_of_operation}}</span>
                                     <span class="value">Average Rating: {{ number_format($vet->averageRating(), 1) }}</span>
                                 </div>
                             </div>

@@ -39,19 +39,21 @@ Route::put('/provider/{id}', [ServiceProviderController::class, 'update']);
 Route::get('/providers', [ServiceProviderController::class, 'index']);
 Route::get('/provider/{id}', [ServiceProviderController::class, 'show']);
 Route::delete('/provider/{id}', [ServiceProviderController::class, 'destroy']);
+Route::get('/locations', [ServiceProviderController::class, 'locations']);
+
 
 //vets registration routes
 Route::get('/get-vets', [VetsController::class, 'index']);
 Route::get('/get-vets/{id}', [VetsController::class, 'show']);
-Route::post('/register-vets', [VetsController::class, 'store']);
-Route::put('/update-vets/{id}', [VetsController::class, 'update']);
+Route::post('/vets', [VetsController::class, 'store']);
+Route::put('/vets/{id}', [VetsController::class, 'update']);
 Route::delete('/delete-vets/{id}', [VetsController::class, 'destroy']);
 
 //farmers registration routes
 Route::get('/get-farmers', [FarmerController::class, 'index']);
 Route::get('/get-farmers/{id}', [FarmerController::class, 'show']);
-Route::post('/register-farmers', [FarmerController::class, 'store']);
-Route::put('/update-farmers/{id}', [FarmerController::class, 'update']);
+Route::post('/farmers', [FarmerController::class, 'store']);
+Route::put('/farmers/{id}', [FarmerController::class, 'update']);
 Route::delete('/delete-farmers/{id}', [FarmerController::class, 'destroy']);
 
 /* make group route callded v2 and make it have this middleware JwtMiddleware */
@@ -62,7 +64,7 @@ Route::group(['middleware' => JWTMiddleware::class], function () {
 
 // //protected routes for authenticated users
 // Route::group(['middleware' => ['auth:api']], function () {
-Route::group(['middleware' => JWTMiddleware::class], function () {
+// Route::group(['middleware' => JWTMiddleware::class], function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'getAuthenticatedUser']);
 
@@ -99,6 +101,7 @@ Route::group(['middleware' => JWTMiddleware::class], function () {
     Route::resource('/paravet-request', ParavetRequestController::class);
     Route::post('/get-available-paravets', [ParavetRequestController::class, 'availableParavets']);
     Route::get('/paravet-requests-stats/{id}', [ParavetRequestController::class, 'getTotals']);
+      Route::get('/get-requests/{id}', [ParavetRequestController::class, 'getRequestsOfAFarmer']);
 
     //paravet ratings
     Route::resource('/rate-paravet', RatingController::class);
@@ -109,4 +112,4 @@ Route::group(['middleware' => JWTMiddleware::class], function () {
 
     //get user roles
     Route::get('/user-roles', [UserRoleController::class, 'show']);
-});
+

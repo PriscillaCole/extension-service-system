@@ -145,7 +145,7 @@ class FarmerController extends AdminController
            
         }
         $form->tools(function (Form\Tools $tools) {
-            $tools->disableDelete();
+          
             $tools->disableView();
            
         });
@@ -163,6 +163,7 @@ class FarmerController extends AdminController
         $form->radio('marital_status', __('Marital status'))->options(['S'=> 'Single', 'M' => 'Married', 'D' => 'Divorced', 'W' => 'Widowed']);
         $form->text('primary_phone_number', __('Phone number'))->rules('required');
         $form->text('secondary_phone_number', __('Other phone number'));
+        $form->email('email', __('Email address'));
         $form->text('physical_address', __('Physical address'))->rules('required');
         $form->text('cooperative_association', __('Cooperative/Association'));
         $form->radio('is_land_owner', __('Do you own land ?'))->options([true => 'Yes', false => 'No']);
@@ -176,13 +177,13 @@ class FarmerController extends AdminController
         $form->radio('access_to_credit', __('Have you ever gotten credit?'))->options([true=> 'Yes', false => 'No']);  
         $form->date('farming_experience', __('Which year did you start farming?'))->default(date('Y'))->format('YYYY')->rules('required');
         $form->select('education', __('Highest level of education'))
-            ->options([
+                 ->options([
                 'None' => 'None',
-                'Primary' => 'Primary',
-                'Secondary' => 'Secondary',
-                'Tertiary' => 'Tertiary',
-                'Bachelor' => 'Bachelor',
-                'Masters' => 'Masters',
+                'Primary Education' => 'Primary Education',
+                'Secondary Education' => 'Secondary Education',
+                'Tertiary Education' => 'Tertiary Education',
+                'Bachelor Degree' => 'BachelorS Degree',
+                'Masters Degree' => 'Masters Degree',
                 'PhD' => 'PhD',
                 'Diploma' => 'Diploma',
             ]);

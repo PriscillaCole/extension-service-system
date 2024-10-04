@@ -13,7 +13,11 @@
         <div class="col-md-6 d-flex justify-content-center align-items-center" style="background-color: #f8f9fa;">
             <div class="w-75">
                 <div >
-                    <div class="card-header text-center">{{ __('Login') }}</div>
+                    <!--<div class="card-header text-center">-->
+                    <!--  <img src="{{ asset('storage/assets/logo.jpeg') }}" alt="Login Image" style="max-width: 50%; height: auto;">-->
+
+                    <!--</div>-->
+
 
                     <div class="card-body">
                         <form method="POST" action="{{ route('login') }}">

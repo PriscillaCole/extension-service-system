@@ -29,7 +29,7 @@ Route::get('farmer-farms/{id}', [HealthRecordController::class, 'getFarms'])->na
 
 Route::post('/ratings', [RatingController::class, 'store'])->name('ratings.store');
 Route::get('/paravets', [RatingController::class, 'index'])->name('paravet-ratings.index');
-Route::get('/paravet-ratings', [HomeController::class, 'ratings']);
+Route::get('/admin/paravet-ratings', [HomeController::class, 'ratings']);
 
 
 
