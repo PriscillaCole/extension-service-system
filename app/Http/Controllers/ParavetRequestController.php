@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\Vet;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RequestsMail;
 
 class ParavetRequestController extends Controller
 {
@@ -152,6 +154,19 @@ class ParavetRequestController extends Controller
         // Update the status of the request
         $paravetRequest->status = $request->status;
         $paravetRequest->save();
+
+        //get the user who made the request
+        $farmer = User::find($paravetRequest->user_id);
+
+        //send notification to the user
+        $credentials = [
+            'status' => $paravetRequest->status,
+            'id' => $paravetRequest->id,
+           
+        ];
+
+         // Send the credentials via email
+        Mail::to($farmer->email)->send(new RequestsMail($credentials, $farmer));
 
         return response()->json([
             'message' => 'Request status updated successfully',
