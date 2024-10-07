@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Encore\Admin\Auth\Database\Role;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 
 
@@ -199,8 +201,18 @@ public function login(Request $request)
         return response()->json(['error' => 'User not found'], 404);
     }
 
-    // Generate the token
-    $token = Password::createToken($user);
+        // Generate a 4-digit token
+        $token = mt_rand(1000, 9999); // Generate a 4-digit random number
+
+        // Store the hashed token in the password_resets table
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            [
+                'email' => $user->email,
+                'token' => Hash::make($token), // Hash the 4-digit token
+                'created_at' => Carbon::now()
+            ]
+        );
 
     // Send the reset token via email
     Mail::to($user->email)->send(new ResetPasswordTokenMail($token, $user));
@@ -234,6 +246,16 @@ public function login(Request $request)
 
         if ($status === Password::PASSWORD_RESET) {
             return response()->json(['message' => 'Password reset successfully']);
+        }
+
+         // Handle invalid token
+        if ($status === Password::INVALID_TOKEN) {
+            return response()->json(['error' => 'The reset token is invalid or has expired. Please request a new token.'], 400);
+        }
+
+        // Handle invalid email or other errors
+        if ($status === Password::INVALID_USER) {
+            return response()->json(['error' => 'The email provided does not match our records.'], 404);
         }
 
         return response()->json(['error' => 'Failed to reset password'], 500);
