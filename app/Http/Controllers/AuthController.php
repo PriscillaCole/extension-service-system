@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\AdminRoleUser;
 use Illuminate\Http\Request;
+use App\Mail\ResetPasswordTokenMail;
+use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use App\Models\Farmer;
 use App\Models\ServiceProvider;
@@ -188,27 +190,26 @@ public function login(Request $request)
     //function to send a password reset token
 
     public function sendResetToken(Request $request)
-    {
-        $request->validate(['email' => 'required|email']);
+{
+    $request->validate(['email' => 'required|email']);
 
-        $user = User::where('email', $request->email)->first();
+    $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-
-        // Generate the token
-        $token = Password::createToken($user);
-
-
-        // Here you can send the token via SMS 
-        return response()->json([
-            'message' => 'Password reset token generated',
-            'token' => $token,
-            'email' => $request->email
-        ], 200);
+    if (!$user) {
+        return response()->json(['error' => 'User not found'], 404);
     }
 
+    // Generate the token
+    $token = Password::createToken($user);
+
+    // Send the reset token via email
+    Mail::to($user->email)->send(new ResetPasswordTokenMail($token, $user));
+
+    return response()->json([
+        'message' => 'Password reset token generated and sent to your email',
+        'email' => $request->email
+    ], 200);
+}
 
     //function to reset the password
     public function resetPassword(Request $request)

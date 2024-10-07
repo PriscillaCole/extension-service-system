@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ServiceProviderCredentialsMail;
 
 class ServiceProvider extends Model
 {
@@ -119,6 +121,14 @@ class ServiceProvider extends Model
     
                         
                         $model->user_id = $new_user->id;
+
+                        $credentials = [
+                            'email' => $new_user->email,
+                            'password' => 'password'
+                        ];
+    
+                         // Send the credentials via email
+                         Mail::to($new_user->email)->send(new ServiceProviderCredentialsMail($credentials, $new_user));
                     }
                 }
 

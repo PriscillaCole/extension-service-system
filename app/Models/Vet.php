@@ -5,6 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VetCredentialsMail;
+
+
 
 class Vet extends Model
 {
@@ -68,6 +72,7 @@ class Vet extends Model
                     $new_user->save();
         
                     $model->user_id = $new_user->id;
+
                 }
             }
         });
@@ -115,6 +120,15 @@ class Vet extends Model
 
                     
                     $model->user_id = $new_user->id;
+
+                    
+                    $credentials = [
+                        'email' => $new_user->email,
+                        'password' => 'password'
+                    ];
+
+                     // Send the credentials via email
+                     Mail::to($new_user->email)->send(new VetCredentialsMail($credentials, $new_user));
                 }
             }
 

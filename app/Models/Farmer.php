@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\FarmerCredentialsMail;
 
 class Farmer extends Model
 {
@@ -31,6 +33,7 @@ class Farmer extends Model
         'status',
         'user_id',
         'added_by',
+        'email'
 
     ];
 
@@ -54,7 +57,7 @@ class Farmer extends Model
                 if(!$user){
                    //create a new user and assign the user_id to the vet
                     $new_user = new User();
-                    $new_user->username = $model->primary_phone_number;
+                    $new_user->username = $model->email;
                     $new_user->name = $model->surname.' '.$model->given_name;
                     $new_user->email = $model->email ?? $model->primary_phone_number . '@example.com';
                     $new_user->password = bcrypt('password');
@@ -63,9 +66,17 @@ class Farmer extends Model
 
                     error_log('here');
                     $model->user_id = $new_user->id;
+
+                    $credentials = [
+                        'email' => $new_user->email,
+                        'password' => 'password'
+                    ];
+
+                     // Send the credentials via email
+                Mail::to($new_user->email)->send(new FarmerCredentialsMail($credentials, $new_user));
                 }
                
-          
+               
            
         });
 
