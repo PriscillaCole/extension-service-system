@@ -108,15 +108,15 @@ public function login(Request $request)
 
     // Retrieve the authenticated user with roles
     $user = auth()->user()->load('roles');
-
+   
     // Initialize an empty variable for additional details
     $additionalDetails = null;
 
     // Determine the role and fetch the corresponding details
     $role = AdminRoleUser::where('user_id', $user->id)->first();
-    $role_name = Role::find($role->role_id)->name;
+   
     if ($role) {
-        
+        $role_name = Role::find($role->role_id)->name;
 
         if ($role_name == 'Farmer') {
             $additionalDetails = Farmer::where('user_id', $user->id)->first();
@@ -127,15 +127,24 @@ public function login(Request $request)
         }elseif($role_name == 'Administrator'){
             $additionalDetails = User::where('id', $user->id)->first(); 
         }
-    }
 
-    // Return the user details, roles, additional details, and token
-    return response()->json([
-        'user' => $user,
-        'role' => $role_name,
-        'additionalDetails' => $additionalDetails,
-        'token' => $token,
-    ], 200);
+        // Return the user details, roles, additional details, and token
+        return response()->json([
+            'user' => $user,
+            'role' => $role_name,
+            'additionalDetails' => $additionalDetails,
+            'token' => $token,
+        ], 200);
+    }
+    else {
+        return response()->json([
+            'error' => 'User has no role',
+            'user' => $user  // Adding user data to the response
+        ], 400);
+    }
+    
+
+ 
 }
 
 
