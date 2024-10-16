@@ -114,8 +114,9 @@ public function login(Request $request)
 
     // Determine the role and fetch the corresponding details
     $role = AdminRoleUser::where('user_id', $user->id)->first();
+    $role_name = Role::find($role->role_id)->name;
     if ($role) {
-        $role_name = Role::find($role->role_id)->name;
+        
 
         if ($role_name == 'Farmer') {
             $additionalDetails = Farmer::where('user_id', $user->id)->first();
